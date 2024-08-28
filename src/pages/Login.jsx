@@ -1,52 +1,32 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Link, useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { Formik } from "formik";
+import { Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const Login = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const initialValues = {
     email: "",
     password: "",
   };
 
-  //   const [userName, setUserName] = useState("");
-  //   const [password, setPassword] = useState("");
-  //   const [rememberMe, setRememberMe] = useState(false);
+  const validationSchema = Yup.object({
+    email: Yup.string().email("Invalid email address").required("Required"),
+    password: Yup.string().required("Required"),
+  });
 
-  //   useEffect(() => {
-  //     const rememberedUserName = localStorage.getItem("RememberedUserName");
-  //     const rememberedPassword = localStorage.getItem("RememberedPassword");
-  //     const rememberedRememberMe = localStorage.getItem("RememberedRememberMe");
-  //     if (rememberMeChecked) {
-  //       setUserName(rememberedUserName);
-  //       setPassword(rememberedPassword);
-  //       setRememberMe(rememberedRememberMe === "true");
-  //     }
-  //   }, []);
   const handleLogin = async (values) => {
-    // if (rememberMe) {
-    //   localStorage.setItem("RememberedUserName", values.email);
-    //   localStorage.setItem("RememberedPassword", values.password);
-    //   localStorage.setItem("RememberedRememberMe", rememberMe);
-    // } else {
-    //   localStorage.removeItem("RememberedUserName");
-    //   localStorage.removeItem("RememberedPassword");
-    //   localStorage.removeItem("RememberedRememberMe");
-    // }
-
     try {
       const response = await axios.post("http://localhost:8080/login", {
         email: values.email,
         password: values.password,
       });
 
-      const accessToken = response.data;
+      const { accessToken } = response.data;
 
       localStorage.setItem("accessToken", accessToken);
 
@@ -57,13 +37,8 @@ const Login = () => {
     }
   };
 
-  const validationSchema = Yup.object({
-    email: Yup.string().email("Invalid email address").required("Required"),
-    password: Yup.string().required("Required"),
-  });
-
   const handleRegister = () => {
-    <Link to="/register"></Link>;
+    navigate("/register");
   };
 
   return (
@@ -72,30 +47,52 @@ const Login = () => {
       validationSchema={validationSchema}
       onSubmit={handleLogin}
     >
-      <Form>
-        <h1>Hi, Welcome! Please Login or Sign Up!</h1>
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" />
-          <Form.Text className="text-muted">
-            We will never share your email with anyone else.
-          </Form.Text>
-        </Form.Group>
+      {({ handleSubmit, isSubmitting }) => (
+        <Form onSubmit={handleSubmit}>
+          <h1>Hi, Welcome! Please Login or Sign Up!</h1>
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Email address</Form.Label>
+            <Field
+              name="email"
+              type="email"
+              placeholder="Enter email"
+              as={Form.Control}
+            />
+            <ErrorMessage
+              name="email"
+              component="div"
+              className="text-danger"
+            />
+            <Form.Text className="text-muted">
+              We will never share your email with anyone else.
+            </Form.Text>
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" />
-        </Form.Group>
+          <Form.Group className="mb-3" controlId="formBasicPassword">
+            <Form.Label>Password</Form.Label>
+            <Field
+              name="password"
+              type="password"
+              placeholder="Password"
+              as={Form.Control}
+            />
+            <ErrorMessage
+              name="password"
+              component="div"
+              className="text-danger"
+            />
+          </Form.Group>
 
-        <Button variant="primary" type="submit">
-          Submit
-        </Button>
-        <br />
-        <p>Don't have an account?</p>
-        <Button variant="primary" onClick={handleRegister}>
-          Register
-        </Button>
-      </Form>
+          <Button variant="primary" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in..." : "Submit"}
+          </Button>
+          <br />
+          <p>Don't have an account?</p>
+          <Button variant="primary" onClick={handleRegister}>
+            Register
+          </Button>
+        </Form>
+      )}
     </Formik>
   );
 };

@@ -5,7 +5,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string()
+  name: Yup.string()
     .max(15, "Must be 15 characters or less")
     .required("Required"),
   description: Yup.string()
@@ -32,17 +32,17 @@ const ModalNewCategory = ({ onSubmit, open, onClose }) => {
 
           <Formik
             initialValues={{
-              title: "",
+              name: "",
               description: "",
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
           >
-            {({ error, touched }) => (
+            {({ errors, touched }) => (
               <Form>
                 <div>
                   <Field
-                    name="title"
+                    name="name"
                     placeholder="Nama Kategori"
                     style={{
                       width: "100%",
@@ -50,37 +50,41 @@ const ModalNewCategory = ({ onSubmit, open, onClose }) => {
                       padding: "10px",
                     }}
                   />
-                  {touched.title && error.title && <div>{error.title}</div>}
+                  {errors.name && touched.name && (
+                    <div style={{ color: "red" }}>{errors.name}</div>
+                  )}
+                  {/* {touched.name && error.name && <div>{error.name}</div>} */}
                 </div>
 
                 <div>
                   <Field
                     name="description"
+                    // type="text"
                     as="textarea"
-                    placeholder="Nama Kategori"
+                    placeholder="Deskripsi Kategori"
                     style={{
                       width: "100%",
                       marginBottom: "10px",
                       padding: "10px",
                     }}
                   />
-                  {touched.description && error.description && (
-                    <div>{error.description}</div>
+                  {errors.description && touched.description && (
+                    <div style={{ color: "red" }}>{errors.name}</div>
                   )}
+                  {/* {touched.description && error.description && (
+                  <div>{error.description}</div>
+                  )} */}
                 </div>
-                <Button variant="primary" type="submit" onClick={handleSubmit}>
+                <Button variant="primary" type="submit">
                   Save changes
+                </Button>
+                <Button variant="danger" onClick={onClose}>
+                  Batal
                 </Button>
               </Form>
             )}
           </Formik>
         </Modal.Body>
-
-        <Modal.Footer>
-          <Button variant="danger" onClick={onClose}>
-            Batal
-          </Button>
-        </Modal.Footer>
       </Modal>
     </div>
   );

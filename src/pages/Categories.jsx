@@ -5,13 +5,15 @@ import CardCategory from "../component/Card";
 import ModalNewCategory from "../component/AddModal";
 import NavBar from "../component/NavBar";
 import ModalEditCategory from "../component/EditModal";
-
+import Button from "react-bootstrap/Button";
+import { useNavigate } from "react-router-dom";
 const CategoriesPages = () => {
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTambahModalOpen, setIsTambahModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  //   const [isDeleteModal, setIsDeleteModal] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -37,6 +39,11 @@ const CategoriesPages = () => {
   };
 
   const handleEditCategory = (category) => {
+    if (!category.id) {
+      console.error("Category ID is undefined:", category);
+      return;
+    }
+
     axios
       .put(`http://localhost:8080/categories/${category.id}`, category)
       .then(() => {
@@ -57,41 +64,52 @@ const CategoriesPages = () => {
       .delete(`http://localhost:8080/categories/${id}`)
       .then(() => {
         setCategories(categories.filter((category) => category.id !== id));
-        console.log("Category deleted successfully with ID: $(id)");
-
-        // setCategories(updatedCategories);
-        //   setIsDeleteModalOpen(false);
       })
       .catch((error) => {
         console.error("Error deleting category:", error);
       });
   };
 
+  const handleLogOut = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/login");
+  };
+
   return (
     <div>
       <NavBar style={{ marginBottom: "5rem", padding: "1rem" }} />
-
+      <Button variant="primary" onClick={() => setIsTambahModalOpen(true)}>
+        Add
+      </Button>{" "}
+      <Button variant="primary" onClick={handleLogOut}>
+        Log Out
+      </Button>{" "}
       {categories.map((category) => (
         <CardCategory
           key={category.id}
           Title={category.name}
           Description={category.description}
-          //   onAdd={() => handleNewCategory(category)}
+          onEdit={() => {
+            console.log("Editing category:", category);
+            setSelectedCategory(category);
+            setIsEditModalOpen(true);
+          }}
           onDelete={() => handleDeleteCategory(category)}
         />
       ))}
-
       <ModalNewCategory
         open={isTambahModalOpen}
         onClose={() => setIsTambahModalOpen(false)}
         onSubmit={handleNewCategory}
       />
-
-      <ModalEditCategory
-        open={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSubmit={handleEditCategory}
-      />
+      {selectedCategory && (
+        <ModalEditCategory
+          open={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleEditCategory}
+          initialValues={selectedCategory}
+        />
+      )}
     </div>
   );
 };

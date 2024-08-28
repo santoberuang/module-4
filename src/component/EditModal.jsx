@@ -5,7 +5,7 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  title: Yup.string()
+  name: Yup.string()
     .max(15, "Must be 15 characters or less")
     .required("Required"),
   description: Yup.string()
@@ -13,88 +13,70 @@ const validationSchema = Yup.object().shape({
     .required("Required"),
 });
 
-const ModalEditCategory = ({ onSubmit, open, onClose }) => {
+const ModalEditCategory = ({ onSubmit, open, onClose, initialValues }) => {
   const handleSubmit = (values) => {
     onSubmit(values);
   };
 
   return (
     <div>
-      <Formik
-        initialValues={{
-          title: "",
-          description: "",
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        <Form>
-          <Modal show={open} onClose={onClose}>
-            <Modal.Header>
-              <Modal.Title>Tambah Kategori</Modal.Title>
-            </Modal.Header>
+      <Modal show={open} onHide={onClose}>
+        <Modal.Header>
+          <Modal.Title>Edit Kategori</Modal.Title>
+        </Modal.Header>
 
-            <Modal.Body>
-              <p>Isi untuk Tambah Kategori</p>
+        <Modal.Body>
+          <p>Isi untuk Edit Kategori</p>
 
-              <Formik
-                initialValues={{
-                  title: "",
-                  description: "",
-                }}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-                {({ error, touched }) => (
-                  <Form>
-                    <div>
-                      <Field
-                        name="title"
-                        placeholder="Nama Kategori"
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                        }}
-                      />
-                      {touched.title && error.title && <div>{error.title}</div>}
-                    </div>
+          <Formik
+            initialValues={initialValues} // Menggunakan initialValues yang diterima dari props
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ errors, touched }) => (
+              <Form>
+                <div>
+                  <Field
+                    name="name"
+                    placeholder="Nama Kategori"
+                    style={{
+                      width: "100%",
+                      marginBottom: "10px",
+                      padding: "10px",
+                    }}
+                  />
+                  {errors.name && touched.name && (
+                    <div style={{ color: "red" }}>{errors.name}</div>
+                  )}
+                </div>
 
-                    <div>
-                      <Field
-                        name="description"
-                        as="textarea"
-                        placeholder="Nama Kategori"
-                        style={{
-                          width: "100%",
-                          marginBottom: "10px",
-                          padding: "10px",
-                        }}
-                      />
-                      {touched.description && error.description && (
-                        <div>{error.description}</div>
-                      )}
-                    </div>
-                    <Button
-                      variant="primary"
-                      type="submit"
-                      onClick={handleSubmit}
-                    >
-                      Save changes
-                    </Button>
-                  </Form>
-                )}
-              </Formik>
-            </Modal.Body>
+                <div>
+                  <Field
+                    name="description"
+                    as="textarea"
+                    placeholder="Deskripsi Kategori"
+                    style={{
+                      width: "100%",
+                      marginBottom: "10px",
+                      padding: "10px",
+                    }}
+                  />
+                  {errors.description && touched.description && (
+                    <div style={{ color: "red" }}>{errors.description}</div>
+                  )}
+                </div>
+                <Button variant="primary" type="submit">
+                  Save changes
+                </Button>
 
-            <Modal.Footer>
-              <Button variant="danger" onClick={onClose}>
-                Batal
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </Form>
-      </Formik>
+                <Button variant="danger" onClick={onClose}>
+                  Batal
+                </Button>
+              </Form>
+            )}
+          </Formik>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
